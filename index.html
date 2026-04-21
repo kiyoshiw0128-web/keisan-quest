@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>けいさんクエスト ～ブロックワールドの冒険～</title>
+    <meta name="description" content="引き算を楽しく学べる子供向け計算ゲーム。マインクラフト風のブロックワールドで冒険しよう！">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <div id="particles"></div>
+
+        <!-- ========== TITLE SCREEN ========== -->
+        <div id="title-screen" class="screen active">
+            <div class="title-bg">
+                <div class="star-field" id="title-stars"></div>
+                <div class="floating-blocks" id="floating-blocks"></div>
+                <div class="ground-row"></div>
+            </div>
+            <div class="title-content">
+                <h1 class="game-title">
+                    <span class="title-line1">けいさん</span>
+                    <span class="title-line2">クエスト</span>
+                </h1>
+                <p class="subtitle">～ブロックワールドの冒険～</p>
+                <div class="title-character">⚔️</div>
+                <div class="title-buttons">
+                    <button id="btn-start" class="pixel-btn pixel-btn--primary">
+                        <span class="btn-icon">⚔️</span> はじめる
+                    </button>
+                    <button id="btn-continue" class="pixel-btn pixel-btn--secondary" style="display:none">
+                        <span class="btn-icon">📖</span> つづきから
+                    </button>
+                </div>
+                <div class="title-stats" id="title-stats" style="display:none">
+                    <p>🏆 さいこうステージ: <span id="best-stage">1</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== HUB SCREEN ========== -->
+        <div id="hub-screen" class="screen">
+            <div class="hub-bg">
+                <div class="star-field" id="hub-stars"></div>
+                <div class="ground-row"></div>
+            </div>
+            <div class="hub-content">
+                <div class="hub-header">
+                    <h2 class="hub-title">ぼうけんのきち</h2>
+                    <div class="hub-stage-info">ステージ <span id="hub-stage">1</span> ⭐ <span id="hub-score">0</span></div>
+                </div>
+
+                <div class="hub-quest-banner" id="hub-quest-banner" style="display:none">
+                    <span class="quest-icon" id="hub-quest-icon">🟢</span>
+                    <div class="quest-info">
+                        <div class="quest-title" id="hub-quest-title">つぎのクエスト</div>
+                        <div class="quest-desc" id="hub-quest-desc">スライムをたおそう！</div>
+                    </div>
+                </div>
+
+                <div class="hub-character-area">
+                    <div class="hub-player">
+                        <div class="hub-player-sprite">🧑‍🦰</div>
+                    </div>
+                    <div class="hub-equipment">
+                        <div class="hub-equip-slot">
+                            <span class="equip-label">ぶき</span>
+                            <span class="equip-value" id="hub-weapon">なし</span>
+                        </div>
+                        <div class="hub-equip-slot">
+                            <span class="equip-label">よろい</span>
+                            <span class="equip-value" id="hub-armor">なし</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hub-inventory" id="hub-inventory">
+                    <!-- Filled by JS -->
+                </div>
+                <div class="hub-food-buff" id="hub-food-buff" style="display:none"></div>
+
+                <div class="hub-buttons">
+                    <button id="btn-hub-battle" class="pixel-btn pixel-btn--primary hub-btn">
+                        <span class="btn-icon">⚔️</span> バトル
+                    </button>
+                    <button id="btn-hub-mining" class="pixel-btn pixel-btn--mining hub-btn">
+                        <span class="btn-icon">⛏️</span> さいくつ
+                    </button>
+                    <button id="btn-hub-crafting" class="pixel-btn pixel-btn--crafting hub-btn">
+                        <span class="btn-icon">🔨</span> クラフト
+                    </button>
+
+                    <button id="btn-hub-map" class="pixel-btn pixel-btn--secondary hub-btn">
+                        <span class="btn-icon">🗺️</span> ワールドマップ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== WORLD MAP SCREEN ========== -->
+        <div id="map-screen" class="screen">
+            <div class="map-bg">
+                <div class="star-field" id="map-stars"></div>
+            </div>
+            <div class="map-content">
+                <div class="map-header">
+                    <h2 class="map-title">🗺️ ワールドマップ</h2>
+                </div>
+                <div class="map-world" id="map-world"></div>
+                <div class="map-footer">
+                    <button id="btn-map-back" class="pixel-btn pixel-btn--secondary">
+                        <span class="btn-icon">⬅️</span> もどる
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== BATTLE SCREEN ========== -->
+        <div id="battle-screen" class="screen">
+            <div class="battle-bg">
+                <div class="star-field" id="battle-stars"></div>
+                <div class="ground-blocks"></div>
+            </div>
+            <div class="battle-hud">
+                <div class="hud-left">
+                    <button id="btn-battle-quit" class="mining-back-btn">⬅️</button>
+                    <span class="stage-label" id="stage-label">ステージ 1</span>
+                    <span class="stage-area" id="stage-area">🌿 草原エリア</span>
+                </div>
+                <div class="hud-right">
+                    <span class="score-display" id="score-display">⭐ 0</span>
+                </div>
+            </div>
+            <div class="battle-field">
+                <div class="monster-section">
+                    <div class="monster-container" id="monster-container">
+                        <div class="monster-sprite" id="monster-sprite">🟢</div>
+                    </div>
+                    <div class="monster-info">
+                        <div class="monster-name" id="monster-name">スライム</div>
+                        <div class="hp-bar">
+                            <div class="hp-track">
+                                <div class="hp-fill hp-fill--monster" id="monster-hp-fill"></div>
+                            </div>
+                            <div class="hp-text" id="monster-hp-text">30/30</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="problem-section" id="problem-section">
+                    <div class="battle-timer" id="battle-timer">
+                        <div class="battle-timer-fill" id="battle-timer-fill"></div>
+                        <span class="battle-timer-text" id="battle-timer-text">15</span>
+                    </div>
+                    <div class="problem-box">
+                        <span class="problem-num problem-num--a" id="num-a">10</span>
+                        <span class="problem-op">ー</span>
+                        <span class="problem-num problem-num--b" id="num-b">3</span>
+                        <span class="problem-eq">=</span>
+                        <span class="problem-answer" id="answer-display">?</span>
+                    </div>
+                    <div class="combo-display" id="combo-display">
+                        <span class="combo-count" id="combo-count">0</span>
+                        <span class="combo-label">コンボ！🔥</span>
+                    </div>
+                </div>
+                <div class="message-overlay" id="message-overlay">
+                    <div class="message-text" id="message-text">すごい！</div>
+                </div>
+                <div class="player-section">
+                    <div class="player-info">
+                        <div class="player-name">ゆうしゃ</div>
+                        <div class="hp-bar">
+                            <div class="hp-track">
+                                <div class="hp-fill hp-fill--player" id="player-hp-fill"></div>
+                            </div>
+                            <div class="hp-text" id="player-hp-text">100/100</div>
+                        </div>
+                    </div>
+                    <div class="player-container" id="player-container">
+                        <div class="player-sprite">🧑‍🦰</div>
+                    </div>
+                </div>
+            </div>
+            <div class="numpad-wrapper">
+                <div class="numpad" id="numpad">
+                    <button class="num-btn" data-num="1">1</button>
+                    <button class="num-btn" data-num="2">2</button>
+                    <button class="num-btn" data-num="3">3</button>
+                    <button class="num-btn" data-num="4">4</button>
+                    <button class="num-btn" data-num="5">5</button>
+                    <button class="num-btn num-btn--action num-btn--delete" data-action="delete">⌫</button>
+                    <button class="num-btn" data-num="6">6</button>
+                    <button class="num-btn" data-num="7">7</button>
+                    <button class="num-btn" data-num="8">8</button>
+                    <button class="num-btn" data-num="9">9</button>
+                    <button class="num-btn" data-num="0">0</button>
+                    <button class="num-btn num-btn--action num-btn--submit" data-action="submit">OK</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== MINING SCREEN ========== -->
+        <div id="mining-screen" class="screen">
+            <div class="mining-bg">
+                <div class="star-field" id="mining-stars"></div>
+            </div>
+            <div class="mining-hud">
+                <div class="hud-left">
+                    <button id="btn-mining-quit" class="mining-back-btn">⬅️</button>
+                    <span class="stage-label">⛏️ さいくつ</span>
+                </div>
+                <div class="hud-right">
+                    <span class="pickaxe-info">ピッケル</span>
+                    <div class="pickaxe-bar">
+                        <div class="pickaxe-bar-fill" id="pickaxe-bar-fill"></div>
+                    </div>
+                    <span class="pickaxe-text" id="pickaxe-durability">10/10</span>
+                </div>
+            </div>
+            <div class="mining-field">
+                <div class="mine-grid" id="mine-grid"></div>
+                <div class="mining-problem-area" id="mining-problem-area">
+                    <div class="problem-box">
+                        <span class="problem-num problem-num--a" id="mine-num-a">10</span>
+                        <span class="problem-op">ー</span>
+                        <span class="problem-num problem-num--b" id="mine-num-b">3</span>
+                        <span class="problem-eq">=</span>
+                        <span class="problem-answer" id="mine-answer-display">?</span>
+                    </div>
+                </div>
+                <div class="message-overlay" id="mining-message">
+                    <div class="message-text" id="mining-message-text"></div>
+                </div>
+                <div class="mining-inv-bar" id="mining-inv-bar"></div>
+            </div>
+            <div class="numpad-wrapper">
+                <div class="numpad" id="mining-numpad">
+                    <button class="num-btn" data-num="1">1</button>
+                    <button class="num-btn" data-num="2">2</button>
+                    <button class="num-btn" data-num="3">3</button>
+                    <button class="num-btn" data-num="4">4</button>
+                    <button class="num-btn" data-num="5">5</button>
+                    <button class="num-btn num-btn--action num-btn--delete" data-action="delete">⌫</button>
+                    <button class="num-btn" data-num="6">6</button>
+                    <button class="num-btn" data-num="7">7</button>
+                    <button class="num-btn" data-num="8">8</button>
+                    <button class="num-btn" data-num="9">9</button>
+                    <button class="num-btn" data-num="0">0</button>
+                    <button class="num-btn num-btn--action num-btn--submit" data-action="submit">OK</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== CRAFTING SCREEN ========== -->
+        <div id="crafting-screen" class="screen">
+            <div class="crafting-bg">
+                <div class="star-field" id="crafting-stars"></div>
+            </div>
+            <div class="crafting-content">
+                <div class="crafting-header">
+                    <h2 class="crafting-title" id="crafting-title">🔨 クラフト</h2>
+                    <div class="crafting-inv" id="crafting-inv"></div>
+                </div>
+                <div class="crafting-tabs">
+                    <button class="craft-tab active" id="tab-equip" data-tab="equip">🔨 そうび</button>
+                    <button class="craft-tab" id="tab-food" data-tab="food">🍳 りょうり</button>
+                </div>
+                <div class="crafting-tab-content" id="crafting-tab-equip">
+                    <div class="crafting-equipment">
+                        <div class="equip-current">
+                            <span class="equip-label">そうび中:</span>
+                            <span id="craft-equipped-weapon">🗡️ なし</span>
+                            <span id="craft-equipped-armor">🛡️ なし</span>
+                        </div>
+                    </div>
+                    <div class="crafting-recipes" id="crafting-recipes"></div>
+                </div>
+                <div class="crafting-tab-content" id="crafting-tab-food" style="display:none">
+                    <div class="food-buff-status" id="food-buff-status"></div>
+                    <!-- Recipe list (shown initially) -->
+                    <div class="crafting-recipes" id="food-recipes"></div>
+                    <!-- Timing minigame (shown when cooking) -->
+                    <div class="cooking-timing-area" id="cooking-timing-area" style="display:none">
+                        <div class="cooking-recipe-header">
+                            <span class="cooking-recipe-icon" id="cooking-recipe-icon">🍠</span>
+                            <span class="cooking-recipe-name" id="cooking-recipe-name">やきいも</span>
+                        </div>
+                        <div class="cooking-progress" id="cooking-progress"></div>
+                        <div class="timing-bar-container">
+                            <div class="timing-bar" id="timing-bar">
+                                <div class="timing-target" id="timing-target"></div>
+                                <div class="timing-marker" id="timing-marker"></div>
+                            </div>
+                        </div>
+                        <button class="pixel-btn pixel-btn--cooking cooking-tap-btn" id="cooking-tap-btn">
+                            <span class="btn-icon">👆</span> タップ！
+                        </button>
+                    </div>
+                    <!-- Cooking result overlay -->
+                    <div class="cooking-result-overlay" id="cooking-result-overlay" style="display:none">
+                        <div class="cooking-result-card">
+                            <div class="result-icon" id="cooking-result-icon">🍳</div>
+                            <h3 class="result-title" id="cooking-result-title">りょうりかんりょう！</h3>
+                            <div class="cooking-result-stars" id="cooking-result-stars-display"></div>
+                            <div class="cooking-result-item">
+                                <span class="cooking-result-item-icon" id="cooking-result-item-icon">🍠</span>
+                                <span class="cooking-result-item-name" id="cooking-result-item-name">やきいも</span>
+                            </div>
+                            <div class="cooking-result-effect" id="cooking-result-effect">HP +20 かいふく</div>
+                            <button id="btn-cooking-result-ok" class="pixel-btn pixel-btn--primary">
+                                <span class="btn-icon">👍</span> OK
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Message overlay -->
+                    <div class="message-overlay" id="cooking-message">
+                        <div class="message-text" id="cooking-message-text"></div>
+                    </div>
+                </div>
+                <div class="crafting-footer">
+                    <button id="btn-crafting-back" class="pixel-btn pixel-btn--secondary">
+                        <span class="btn-icon">⬅️</span> もどる
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== RESULT SCREEN ========== -->
+        <div id="result-screen" class="screen">
+            <div class="result-bg">
+                <div class="star-field" id="result-stars"></div>
+            </div>
+            <div class="result-content">
+                <div class="result-icon" id="result-icon">🎉</div>
+                <h2 class="result-title" id="result-title">しょうり！</h2>
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-label">スコア</div>
+                        <div class="stat-value" id="result-score">0</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-label">せいかいりつ</div>
+                        <div class="stat-value" id="result-accuracy">0%</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-label">さいだいコンボ</div>
+                        <div class="stat-value" id="result-combo">0</div>
+                    </div>
+                </div>
+                <div class="result-loot" id="result-loot" style="display:none">
+                    <h3 class="loot-title">🎁 ドロップ</h3>
+                    <div class="loot-items" id="loot-items"></div>
+                </div>
+                <div class="result-level" id="result-level" style="display:none">
+                    <span class="level-up-text">📈 レベルアップ！</span>
+                    <span class="level-up-detail" id="level-up-detail"></span>
+                </div>
+                <div class="result-buttons">
+                    <button id="btn-next-battle" class="pixel-btn pixel-btn--primary" style="display:none">
+                        <span class="btn-icon">⚔️</span> つぎのバトル
+                    </button>
+                    <button id="btn-next" class="pixel-btn pixel-btn--primary">
+                        <span class="btn-icon">🏠</span> きちへもどる
+                    </button>
+                    <button id="btn-retry" class="pixel-btn pixel-btn--primary" style="display:none">
+                        <span class="btn-icon">🔄</span> もういちど
+                    </button>
+                    <button id="btn-title" class="pixel-btn pixel-btn--secondary">
+                        <span class="btn-icon">🏠</span> タイトルへ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== MINING RESULT SCREEN ========== -->
+        <div id="mining-result-screen" class="screen">
+            <div class="result-bg">
+                <div class="star-field" id="mining-result-stars"></div>
+            </div>
+            <div class="result-content">
+                <div class="result-icon">⛏️</div>
+                <h2 class="result-title victory">さいくつかんりょう！</h2>
+                <div class="result-loot">
+                    <h3 class="loot-title">🎁 ゲットしたもの</h3>
+                    <div class="loot-items" id="mining-loot-items"></div>
+                </div>
+                <div class="result-buttons">
+                    <button id="btn-mining-back" class="pixel-btn pixel-btn--primary">
+                        <span class="btn-icon">🏠</span> きちへもどる
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- ========== DIALOGUE OVERLAY ========== -->
+        <div id="dialogue-overlay" class="dialogue-overlay">
+            <div class="dialogue-box">
+                <div class="dialogue-speaker">
+                    <span class="dialogue-speaker-icon" id="dialogue-speaker-icon">👴</span>
+                    <span class="dialogue-speaker-name" id="dialogue-speaker-name">そんちょう</span>
+                </div>
+                <div class="dialogue-text" id="dialogue-text">ゆうしゃよ、まものがブロックワールドをおそっている！</div>
+                <div class="dialogue-next">▼ タップでつぎへ</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/inventory.js"></script>
+    <script src="js/monsters.js"></script>
+    <script src="js/story.js"></script>
+    <script src="js/math-engine.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/battle.js"></script>
+    <script src="js/cooking.js"></script>
+    <script src="js/mining.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

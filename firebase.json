@@ -1,0 +1,14 @@
+{
+  "hosting": {
+    "site": "keisan-quest-game",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      ".git",
+      ".git/**",
+      "README.md",
+      "node_modules/**"
+    ]
+  }
+}
