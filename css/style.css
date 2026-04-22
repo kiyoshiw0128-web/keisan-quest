@@ -41,6 +41,7 @@
 
   --font-pixel: 'DotGothic16', sans-serif;
   --font-pixel-en: 'Press Start 2P', monospace;
+  --font-title: 'Dela Gothic One', 'DotGothic16', sans-serif;
 
   --pixel-border: 4px solid;
   --shadow-pixel: 4px 4px 0px rgba(0, 0, 0, 0.5);
@@ -122,7 +123,7 @@ body {
 .title-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #0a0e27 0%, #1a1a3e 40%, #2d1b4e 70%, #1a2a3a 100%);
+  background: linear-gradient(180deg, #04060f 0%, #0a0620 40%, #180535 70%, #06080f 100%);
   overflow: hidden;
 }
 
@@ -134,9 +135,9 @@ body {
   height: 80px;
   background:
     repeating-linear-gradient(90deg,
-      var(--grass-light) 0px, var(--grass-mid) 2px, var(--grass-mid) 30px, var(--grass-light) 32px) 0 0 / 32px 12px no-repeat,
+      #3a2855 0px, #2a1e42 2px, #2a1e42 30px, #3a2855 32px) 0 0 / 32px 12px no-repeat,
     repeating-linear-gradient(90deg,
-      var(--dirt-light) 0px, var(--dirt-mid) 16px, var(--dirt-dark) 32px) 0 12px / 32px 68px no-repeat;
+      #1a1228 0px, #120d1e 16px, #0d0a18 32px) 0 12px / 32px 68px no-repeat;
   background-repeat: repeat-x;
   image-rendering: pixelated;
 }
@@ -156,21 +157,21 @@ body {
 }
 
 .floating-block--grass {
-  background: var(--grass-mid);
-  border: 2px solid var(--grass-dark);
-  box-shadow: inset -2px -2px 0 var(--grass-dark), inset 2px 2px 0 var(--grass-light);
+  background: #4a1e80;
+  border: 2px solid #2a1050;
+  box-shadow: inset -2px -2px 0 #1e0c40, inset 2px 2px 0 #6e34aa, 0 0 10px rgba(120, 60, 200, 0.4);
 }
 
 .floating-block--dirt {
-  background: var(--dirt-mid);
-  border: 2px solid var(--dirt-dark);
-  box-shadow: inset -2px -2px 0 var(--dirt-dark), inset 2px 2px 0 var(--dirt-light);
+  background: #2e1d60;
+  border: 2px solid #1a1040;
+  box-shadow: inset -2px -2px 0 #120c30, inset 2px 2px 0 #4a2e80, 0 0 8px rgba(80, 50, 180, 0.3);
 }
 
 .floating-block--stone {
-  background: var(--stone-mid);
-  border: 2px solid var(--stone-dark);
-  box-shadow: inset -2px -2px 0 var(--stone-dark), inset 2px 2px 0 var(--stone-light);
+  background: #1e1a3a;
+  border: 2px solid #120f28;
+  box-shadow: inset -2px -2px 0 #0c0a20, inset 2px 2px 0 #2e2852, 0 0 6px rgba(80, 70, 160, 0.25);
 }
 
 @keyframes floatBlock {
@@ -212,27 +213,29 @@ body {
 
 .title-line1 {
   display: block;
-  font-size: 3rem;
-  font-family: var(--font-pixel);
+  font-size: 3.2rem;
+  font-family: var(--font-title);
   color: var(--gold);
   text-shadow:
     3px 3px 0 var(--gold-dark),
-    0 0 30px rgba(255, 215, 0, 0.5),
-    0 0 60px rgba(255, 215, 0, 0.2);
-  letter-spacing: 0.15em;
+    0 0 25px rgba(255, 215, 0, 0.7),
+    0 0 60px rgba(255, 215, 0, 0.3),
+    0 0 100px rgba(255, 180, 0, 0.15);
+  letter-spacing: 0.12em;
   animation: titlePulse 3s ease-in-out infinite;
 }
 
 .title-line2 {
   display: block;
-  font-size: 3.5rem;
-  font-family: var(--font-pixel);
+  font-size: 4rem;
+  font-family: var(--font-title);
   color: var(--accent-cyan);
   text-shadow:
-    3px 3px 0 #2a8a9e,
-    0 0 30px rgba(88, 214, 240, 0.5),
-    0 0 60px rgba(88, 214, 240, 0.2);
-  letter-spacing: 0.2em;
+    3px 3px 0 #1a6a80,
+    0 0 25px rgba(88, 214, 240, 0.7),
+    0 0 60px rgba(88, 214, 240, 0.3),
+    0 0 100px rgba(60, 180, 220, 0.15);
+  letter-spacing: 0.15em;
   animation: titlePulse 3s ease-in-out infinite 0.5s;
 }
 
@@ -249,10 +252,11 @@ body {
 }
 
 .subtitle {
-  font-size: 1rem;
-  color: var(--text-dim);
+  font-size: 0.9rem;
+  color: rgba(180, 155, 220, 0.75);
   margin-bottom: 24px;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.35em;
+  text-shadow: 0 0 12px rgba(150, 100, 220, 0.4);
   animation: fadeInUp 1s ease 0.3s both;
 }
 
@@ -322,13 +326,14 @@ body {
 }
 
 .pixel-btn--primary {
-  background: linear-gradient(180deg, var(--grass-light), var(--grass-mid));
-  color: #ffffff;
-  border: 3px solid var(--grass-dark);
+  background: linear-gradient(180deg, #f6d060, #c8960c);
+  color: #1a0a00;
+  border: 3px solid #9a7008;
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.2),
-    0 4px 0 var(--grass-dark),
-    0 6px 12px rgba(0, 0, 0, 0.3);
+    inset 0 2px 0 rgba(255, 255, 255, 0.25),
+    0 4px 0 #9a7008,
+    0 6px 14px rgba(0, 0, 0, 0.45),
+    0 0 20px rgba(220, 160, 10, 0.2);
 }
 
 .pixel-btn--secondary {
@@ -402,9 +407,9 @@ body {
   height: 60px;
   background:
     repeating-linear-gradient(90deg,
-      var(--grass-light) 0px, var(--grass-mid) 2px, var(--grass-mid) 30px, var(--grass-light) 32px) 0 0 / 32px 10px no-repeat,
+      #3a2855 0px, #2a1e42 2px, #2a1e42 30px, #3a2855 32px) 0 0 / 32px 10px no-repeat,
     repeating-linear-gradient(90deg,
-      var(--dirt-light) 0px, var(--dirt-mid) 16px, var(--dirt-dark) 32px) 0 10px / 32px 50px no-repeat;
+      #16102a 0px, #100c20 16px, #0c0818 32px) 0 10px / 32px 50px no-repeat;
   background-repeat: repeat-x;
   image-rendering: pixelated;
 }
@@ -541,9 +546,10 @@ body {
 
 .monster-name {
   font-size: 1.15rem;
+  font-family: var(--font-title);
   color: var(--text-white);
   margin-bottom: 6px;
-  font-weight: bold;
+  letter-spacing: 0.05em;
 }
 
 /* --- HP Bar --- */
@@ -988,10 +994,12 @@ body {
 
 .result-title {
   font-size: 2.5rem;
+  font-family: var(--font-title);
   margin-bottom: 24px;
   text-shadow:
-    3px 3px 0 rgba(0, 0, 0, 0.4),
-    0 0 30px currentColor;
+    3px 3px 0 rgba(0, 0, 0, 0.5),
+    0 0 30px currentColor,
+    0 0 60px currentColor;
 }
 
 .result-title.victory {
@@ -1421,7 +1429,7 @@ body {
 .hub-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #0a1628 0%, #162040 40%, #1a3a2a 80%, #1a2a1a 100%);
+  background: linear-gradient(180deg, #070b1a 0%, #0e0d28 40%, #150a2e 80%, #080810 100%);
   overflow: hidden;
 }
 
@@ -1442,8 +1450,9 @@ body {
 
 .hub-title {
   font-size: 1.6rem;
+  font-family: var(--font-title);
   color: var(--gold);
-  text-shadow: 2px 2px 0 var(--gold-dark), 0 0 20px rgba(255, 215, 0, 0.3);
+  text-shadow: 2px 2px 0 var(--gold-dark), 0 0 20px rgba(255, 215, 0, 0.5);
 }
 
 .hub-stage-info {
@@ -1541,23 +1550,23 @@ body {
 }
 
 .pixel-btn--mining {
-  background: linear-gradient(180deg, var(--dirt-light), var(--dirt-mid));
+  background: linear-gradient(180deg, #7a6a90, #4a3860);
   color: #ffffff;
-  border: 3px solid var(--dirt-dark);
+  border: 3px solid #2e2040;
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.2),
-    0 4px 0 var(--dirt-dark),
-    0 6px 12px rgba(0, 0, 0, 0.3);
+    inset 0 2px 0 rgba(255, 255, 255, 0.15),
+    0 4px 0 #2e2040,
+    0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 .pixel-btn--crafting {
-  background: linear-gradient(180deg, var(--wood-light), var(--wood-mid));
+  background: linear-gradient(180deg, #8a6a40, #5a4020);
   color: #ffffff;
-  border: 3px solid var(--wood-dark);
+  border: 3px solid #3a2810;
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.2),
-    0 4px 0 var(--wood-dark),
-    0 6px 12px rgba(0, 0, 0, 0.3);
+    inset 0 2px 0 rgba(255, 255, 255, 0.15),
+    0 4px 0 #3a2810,
+    0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 .pixel-btn--cooking {
@@ -2263,8 +2272,9 @@ body {
 
 .crafting-title {
   font-size: 1.5rem;
+  font-family: var(--font-title);
   color: var(--gold);
-  text-shadow: 2px 2px 0 var(--gold-dark);
+  text-shadow: 2px 2px 0 var(--gold-dark), 0 0 16px rgba(255, 215, 0, 0.4);
   margin-bottom: 8px;
 }
 
