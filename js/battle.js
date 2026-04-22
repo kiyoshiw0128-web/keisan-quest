@@ -390,10 +390,12 @@ class BattleSystem {
     // --- Timer ---
 
     getTimerDuration(stageIndex) {
-        if (stageIndex < 6) return 15;
-        if (stageIndex < 12) return 12;
-        if (stageIndex < 15) return 10;
-        return 8;
+        if (stageIndex < 3) return 10;   // 草原
+        if (stageIndex < 6) return 8;    // 山岳
+        if (stageIndex < 9) return 7;    // 火山
+        if (stageIndex < 12) return 6;   // 砂漠
+        if (stageIndex < 15) return 5;   // 氷の洞窟
+        return 5;                         // 闇の城〜エンドレス
     }
 
     startTimer() {
@@ -416,7 +418,7 @@ class BattleSystem {
             this.els.timerText.textContent = Math.ceil(this.timerRemaining);
 
             // Urgent warning at 3 seconds
-            if (this.timerRemaining <= 3) {
+            if (this.timerRemaining <= 2) {
                 this.els.timerFill.classList.add('urgent');
             } else {
                 this.els.timerFill.classList.remove('urgent');
