@@ -36,7 +36,7 @@ const MONSTERS = [
     {
         name: 'ゾンビ',
         sprite: '🧟',
-        image: 'images/zombie.png',
+        image: 'images/zombie.webp',
         hp: 120,
         attack: 18,
         area: 0,
@@ -69,7 +69,7 @@ const MONSTERS = [
     {
         name: 'クリーパー',
         sprite: '💚',
-        image: 'images/creeper.png',
+        image: 'images/creeper.webp',
         hp: 180,
         attack: 26,
         area: 1,
@@ -102,7 +102,7 @@ const MONSTERS = [
     {
         name: 'ドラゴン',
         sprite: '🐉',
-        image: 'images/dragon.png',
+        image: 'images/dragon.webp',
         hp: 200,
         attack: 30,
         area: 2,
@@ -135,7 +135,7 @@ const MONSTERS = [
     {
         name: 'スフィンクス',
         sprite: '🦁',
-        image: 'images/sphinx.png',
+        image: 'images/sphinx.webp',
         hp: 250,
         attack: 35,
         area: 3,
@@ -168,7 +168,7 @@ const MONSTERS = [
     {
         name: 'フロストドラゴン',
         sprite: '❄️',
-        image: 'images/frost-dragon.png',
+        image: 'images/frost-dragon.webp',
         hp: 280,
         attack: 40,
         area: 4,
@@ -201,7 +201,7 @@ const MONSTERS = [
     {
         name: 'まおう',
         sprite: '😈',
-        image: 'images/maou.png',
+        image: 'images/maou.webp',
         hp: 350,
         attack: 50,
         area: 5,
