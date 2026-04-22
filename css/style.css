@@ -7,8 +7,8 @@
 :root {
   --bg-deep: #0d1117;
   --bg-dark: #161b22;
-  --bg-panel: rgba(22, 27, 34, 0.92);
-  --bg-panel-light: rgba(48, 54, 61, 0.85);
+  --bg-panel: rgba(8, 6, 18, 0.97);
+  --bg-panel-light: rgba(18, 14, 32, 0.92);
 
   --grass-light: #6abf4b;
   --grass-mid: #4d9e3a;
@@ -33,7 +33,7 @@
   --accent-blue: #4facfe;
 
   --hp-player: linear-gradient(90deg, #43e97b, #38f9d7);
-  --hp-monster: linear-gradient(90deg, #f5576c, #ff6f61);
+  --hp-monster: linear-gradient(90deg, #a00615, #ee0e20);
 
   --text-white: #e6edf3;
   --text-dim: #8b949e;
@@ -369,7 +369,7 @@ body {
 .battle-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #070b1a 0%, #0f1b3d 50%, #1a2a4a 100%);
+  background: linear-gradient(180deg, #020408 0%, #060d25 45%, #100608 100%);
   overflow: hidden;
 }
 
@@ -423,7 +423,7 @@ body {
   align-items: center;
   padding: 6px 12px;
   background: var(--bg-panel);
-  border-bottom: 3px solid rgba(88, 214, 240, 0.3);
+  border-bottom: 3px solid rgba(180, 15, 15, 0.65);
 }
 
 .hud-left {
@@ -434,9 +434,9 @@ body {
 
 .stage-label {
   font-size: 0.95rem;
-  color: var(--accent-cyan);
+  color: var(--text-gold);
   font-weight: bold;
-  text-shadow: 0 0 8px rgba(88, 214, 240, 0.4);
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
 }
 
 .stage-area {
@@ -470,8 +470,9 @@ body {
   gap: 16px;
   padding: 12px 16px;
   background: var(--bg-panel);
-  border-radius: 12px;
-  border: 2px solid rgba(244, 67, 54, 0.3);
+  border-radius: 4px;
+  border: 2px solid rgba(200, 15, 15, 0.7);
+  box-shadow: 0 0 24px rgba(160, 8, 8, 0.25), inset 0 0 20px rgba(0, 0, 0, 0.4);
 }
 
 .monster-container {
@@ -524,7 +525,7 @@ body {
   width: 180px;
   height: 180px;
   object-fit: contain;
-  filter: drop-shadow(0 0 20px rgba(255, 80, 80, 0.8));
+  filter: drop-shadow(0 0 16px rgba(220, 10, 10, 0.9)) drop-shadow(0 0 40px rgba(160, 0, 0, 0.5));
 }
 
 @keyframes monsterIdle {
@@ -684,12 +685,13 @@ body {
   justify-content: center;
   gap: 12px;
   padding: 16px 32px;
-  background: var(--bg-panel);
+  background: rgba(4, 3, 10, 0.99);
   border: 3px solid var(--gold);
-  border-radius: 12px;
+  border-radius: 4px;
   box-shadow:
-    0 0 25px rgba(255, 215, 0, 0.25),
-    inset 0 0 20px rgba(255, 215, 0, 0.05);
+    0 0 40px rgba(255, 215, 0, 0.4),
+    0 0 80px rgba(200, 150, 0, 0.12),
+    inset 0 0 30px rgba(200, 150, 0, 0.06);
   min-width: 280px;
 }
 
@@ -830,8 +832,9 @@ body {
   gap: 16px;
   padding: 10px 16px;
   background: var(--bg-panel);
-  border-radius: 12px;
-  border: 2px solid rgba(67, 233, 123, 0.3);
+  border-radius: 4px;
+  border: 2px solid rgba(50, 200, 90, 0.45);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.4);
 }
 
 .player-info {
@@ -881,7 +884,7 @@ body {
   z-index: 5;
   padding: 6px 12px 8px;
   background: var(--bg-panel);
-  border-top: 3px solid rgba(88, 214, 240, 0.2);
+  border-top: 3px solid rgba(120, 80, 160, 0.3);
 }
 
 .numpad {
@@ -899,9 +902,9 @@ body {
   font-size: 1.35rem;
   font-weight: bold;
   color: var(--text-white);
-  background: linear-gradient(180deg, #2d3748, #1a202c);
-  border: 2px solid #4a5568;
-  border-radius: 6px;
+  background: linear-gradient(180deg, #18142a, #0c0a1c);
+  border: 2px solid #2a2248;
+  border-radius: 3px;
   cursor: pointer;
   transition: all var(--transition-fast);
   box-shadow:
@@ -934,18 +937,19 @@ body {
 }
 
 .num-btn--submit {
-  background: linear-gradient(180deg, var(--grass-mid), var(--grass-dark));
-  border-color: var(--grass-dark);
+  background: linear-gradient(180deg, #c41828, #7a0e18);
+  border-color: #5a0810;
   color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 2px 0 var(--grass-dark),
-    0 3px 6px rgba(0, 0, 0, 0.3);
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 2px 0 #5a0810,
+    0 3px 8px rgba(0, 0, 0, 0.5),
+    0 0 14px rgba(200, 15, 25, 0.35);
 }
 
 .num-btn--submit:hover {
-  background: linear-gradient(180deg, var(--grass-light), var(--grass-mid));
+  background: linear-gradient(180deg, #e02030, #a01020);
 }
 
 /* ============================================
@@ -955,7 +959,7 @@ body {
 .result-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #0a0e27 0%, #1a1a3e 50%, #0d1117 100%);
+  background: linear-gradient(180deg, #030408 0%, #08061c 50%, #030305 100%);
 }
 
 .result-content {
@@ -1467,10 +1471,11 @@ body {
   gap: 20px;
   padding: 16px 24px;
   background: var(--bg-panel);
-  border: 2px solid rgba(88, 214, 240, 0.2);
-  border-radius: 12px;
+  border: 2px solid rgba(160, 120, 220, 0.25);
+  border-radius: 6px;
   width: 100%;
   max-width: 360px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
 }
 
 .hub-player {
@@ -1586,7 +1591,7 @@ body {
 .cooking-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #1a0a00 0%, #2d1400 50%, #3a1a0a 100%);
+  background: linear-gradient(180deg, #0e0400 0%, #1c0a00 50%, #240e04 100%);
   overflow: hidden;
 }
 
@@ -1873,7 +1878,7 @@ body {
 .mining-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #1a1a1a 0%, #2a2018 30%, #3a2a18 60%, #2a1a10 100%);
+  background: linear-gradient(180deg, #060508 0%, #0e0c06 30%, #140e06 60%, #0a0604 100%);
 }
 
 .mining-hud {
@@ -2252,7 +2257,7 @@ body {
 .crafting-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #1a1510 0%, #2a2018 50%, #1a1510 100%);
+  background: linear-gradient(180deg, #080606 0%, #100c08 50%, #080606 100%);
 }
 
 .crafting-content {
