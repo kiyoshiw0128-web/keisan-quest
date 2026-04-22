@@ -16,8 +16,8 @@ const MONSTERS = [
     {
         name: 'スライム',
         sprite: '🟢',
-        hp: 30,
-        attack: 8,
+        hp: 60,
+        attack: 12,
         area: 0,
         isBoss: false,
         color: '#4caf50',
@@ -26,8 +26,8 @@ const MONSTERS = [
     {
         name: 'キノコマン',
         sprite: '🍄',
-        hp: 35,
-        attack: 10,
+        hp: 70,
+        attack: 14,
         area: 0,
         isBoss: false,
         color: '#e06c9f',
@@ -36,8 +36,9 @@ const MONSTERS = [
     {
         name: 'ゾンビ',
         sprite: '🧟',
-        hp: 60,
-        attack: 14,
+        image: 'images/zombie.png',
+        hp: 120,
+        attack: 18,
         area: 0,
         isBoss: true,
         color: '#66bb6a',
@@ -48,8 +49,8 @@ const MONSTERS = [
     {
         name: 'クモ',
         sprite: '🕷️',
-        hp: 45,
-        attack: 12,
+        hp: 90,
+        attack: 20,
         area: 1,
         isBoss: false,
         color: '#8d6e63',
@@ -58,8 +59,8 @@ const MONSTERS = [
     {
         name: 'スケルトン',
         sprite: '💀',
-        hp: 50,
-        attack: 14,
+        hp: 100,
+        attack: 22,
         area: 1,
         isBoss: false,
         color: '#bdbdbd',
@@ -68,8 +69,9 @@ const MONSTERS = [
     {
         name: 'クリーパー',
         sprite: '💚',
-        hp: 80,
-        attack: 18,
+        image: 'images/creeper.png',
+        hp: 180,
+        attack: 26,
         area: 1,
         isBoss: true,
         color: '#43a047',
@@ -80,8 +82,8 @@ const MONSTERS = [
     {
         name: 'エンダーマン',
         sprite: '👾',
-        hp: 55,
-        attack: 16,
+        hp: 110,
+        attack: 24,
         area: 2,
         isBoss: false,
         color: '#7e57c2',
@@ -90,8 +92,8 @@ const MONSTERS = [
     {
         name: 'ブレイズ',
         sprite: '🔥',
-        hp: 60,
-        attack: 18,
+        hp: 120,
+        attack: 26,
         area: 2,
         isBoss: false,
         color: '#ff9800',
@@ -100,8 +102,9 @@ const MONSTERS = [
     {
         name: 'ドラゴン',
         sprite: '🐉',
-        hp: 120,
-        attack: 22,
+        image: 'images/dragon.png',
+        hp: 200,
+        attack: 30,
         area: 2,
         isBoss: true,
         color: '#e53935',
@@ -112,8 +115,8 @@ const MONSTERS = [
     {
         name: 'サソリ',
         sprite: '🦂',
-        hp: 70,
-        attack: 20,
+        hp: 130,
+        attack: 28,
         area: 3,
         isBoss: false,
         color: '#c49a3c',
@@ -122,8 +125,8 @@ const MONSTERS = [
     {
         name: 'ミイラ',
         sprite: '🧌',
-        hp: 80,
-        attack: 22,
+        hp: 150,
+        attack: 30,
         area: 3,
         isBoss: false,
         color: '#a08050',
@@ -132,8 +135,9 @@ const MONSTERS = [
     {
         name: 'スフィンクス',
         sprite: '🦁',
-        hp: 150,
-        attack: 26,
+        image: 'images/sphinx.png',
+        hp: 250,
+        attack: 35,
         area: 3,
         isBoss: true,
         color: '#d4a437',
@@ -144,8 +148,8 @@ const MONSTERS = [
     {
         name: 'アイスゴーレム',
         sprite: '🥶',
-        hp: 90,
-        attack: 24,
+        hp: 160,
+        attack: 32,
         area: 4,
         isBoss: false,
         color: '#64b5f6',
@@ -154,8 +158,8 @@ const MONSTERS = [
     {
         name: 'ゆきおんな',
         sprite: '👻',
-        hp: 95,
-        attack: 26,
+        hp: 180,
+        attack: 34,
         area: 4,
         isBoss: false,
         color: '#90caf9',
@@ -164,8 +168,9 @@ const MONSTERS = [
     {
         name: 'フロストドラゴン',
         sprite: '❄️',
-        hp: 180,
-        attack: 30,
+        image: 'images/frost-dragon.png',
+        hp: 280,
+        attack: 40,
         area: 4,
         isBoss: true,
         color: '#29b6f6',
@@ -176,8 +181,8 @@ const MONSTERS = [
     {
         name: 'ダークナイト',
         sprite: '🗡️',
-        hp: 110,
-        attack: 28,
+        hp: 200,
+        attack: 38,
         area: 5,
         isBoss: false,
         color: '#5c3d8f',
@@ -186,8 +191,8 @@ const MONSTERS = [
     {
         name: 'デーモン',
         sprite: '👹',
-        hp: 120,
-        attack: 30,
+        hp: 230,
+        attack: 42,
         area: 5,
         isBoss: false,
         color: '#c62828',
@@ -196,8 +201,9 @@ const MONSTERS = [
     {
         name: 'まおう',
         sprite: '😈',
-        hp: 250,
-        attack: 35,
+        image: 'images/maou.png',
+        hp: 350,
+        attack: 50,
         area: 5,
         isBoss: true,
         color: '#4a148c',
@@ -233,8 +239,8 @@ function getArea(stageIndex) {
 }
 
 // Player damage per correct answer
-const PLAYER_ATTACK_BASE = 10;
-const COMBO_BONUS = 2; // Extra damage per combo
+const PLAYER_ATTACK_BASE = 5;
+const COMBO_BONUS = 3; // Extra damage per combo
 
 // Time limit per area (seconds)
 // 草原 = 15s, 山岳 = 12s, 火山 = 10s, エンドレス = 8s

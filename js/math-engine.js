@@ -5,6 +5,7 @@
 class MathEngine {
     constructor() {
         this.level = 1; // 1: easy, 2: medium, 3: hard
+        this.mode = 'subtract'; // 'subtract' | 'multiply'
         this.totalCorrect = 0;
         this.totalAttempts = 0;
         this.consecutiveCorrect = 0;
@@ -14,26 +15,30 @@ class MathEngine {
     }
 
     /**
-     * Generate a subtraction problem based on current level.
-     * Returns { a, b, answer }
+     * Generate a problem based on current mode and level.
+     * Returns { a, b, answer, op }
      */
     generateProblem() {
-        let a, b, attempts = 0;
+        return this.mode === 'multiply'
+            ? this.generateMultiplyProblem()
+            : this.generateSubtractProblem();
+    }
 
+    generateSubtractProblem() {
+        let a, b, onesDigit, attempts = 0;
         do {
             switch (this.level) {
-                case 1: // かんたん: 10以下の引き算 (例: 8-3, 7-2)
+                case 1:
                     a = this.randomInt(3, 10);
                     b = this.randomInt(1, a - 1);
                     break;
-                case 2: // ふつう: 10台の繰り下がり (例: 13-6, 16-9)
+                case 2:
                     a = this.randomInt(11, 18);
                     b = this.randomInt(a - 9, a - 1);
                     break;
-                case 3: // むずかしい: 繰り下がり必須 (例: 15-8, 17-9)
+                case 3:
                     a = this.randomInt(12, 19);
-                    // 繰り下がりが起きるよう b > a の一の位にする
-                    const onesDigit = a % 10;
+                    onesDigit = a % 10;
                     b = this.randomInt(Math.max(onesDigit + 1, a - 9), a - 1);
                     break;
                 default:
@@ -44,12 +49,38 @@ class MathEngine {
         } while (this.usedProblems.has(`${a}-${b}`) && attempts < 50);
 
         this.usedProblems.add(`${a}-${b}`);
-        // Reset used problems if too many to prevent running out
-        if (this.usedProblems.size > 200) {
-            this.usedProblems.clear();
-        }
+        if (this.usedProblems.size > 200) this.usedProblems.clear();
 
-        return { a, b, answer: a - b };
+        return { a, b, answer: a - b, op: 'ー' };
+    }
+
+    generateMultiplyProblem() {
+        let a, b, attempts = 0;
+        do {
+            switch (this.level) {
+                case 1: // かんたん: 2-5のだん × 1-5
+                    a = this.randomInt(2, 5);
+                    b = this.randomInt(1, 5);
+                    break;
+                case 2: // ふつう: 2-9のだん × 1-9
+                    a = this.randomInt(2, 9);
+                    b = this.randomInt(1, 9);
+                    break;
+                case 3: // むずかしい: 6-9のだん × 6-9
+                    a = this.randomInt(6, 9);
+                    b = this.randomInt(6, 9);
+                    break;
+                default:
+                    a = this.randomInt(2, 5);
+                    b = this.randomInt(1, 5);
+            }
+            attempts++;
+        } while (this.usedProblems.has(`m${a}x${b}`) && attempts < 50);
+
+        this.usedProblems.add(`m${a}x${b}`);
+        if (this.usedProblems.size > 200) this.usedProblems.clear();
+
+        return { a, b, answer: a * b, op: '×' };
     }
 
     /**
@@ -120,6 +151,14 @@ class MathEngine {
      * Get level name in Japanese.
      */
     getLevelName() {
+        if (this.mode === 'multiply') {
+            switch (this.level) {
+                case 1: return 'かんたん 🌱 (2〜5のだん)';
+                case 2: return 'ふつう ⚡ (2〜9のだん)';
+                case 3: return 'むずかしい 🔥 (6〜9のだん)';
+                default: return 'かんたん 🌱';
+            }
+        }
         switch (this.level) {
             case 1: return 'かんたん 🌱';
             case 2: return 'ふつう ⚡';
@@ -148,6 +187,7 @@ class MathEngine {
      */
     resetAll() {
         this.level = 1;
+        this.mode = 'subtract';
         this.totalCorrect = 0;
         this.totalAttempts = 0;
         this.consecutiveCorrect = 0;

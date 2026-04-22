@@ -6,6 +6,7 @@ class GameApp {
     constructor() {
         this.inventory = new Inventory();
         this.mathEngine = new MathEngine();
+        this.taMathEngine = new MathEngine();
         this.effects = new EffectsManager();
         this.sound = new SoundManager();
         this.battle = new BattleSystem(this.mathEngine, this.effects, this.sound);
@@ -17,6 +18,11 @@ class GameApp {
         this.currentStage = 0;
         this.totalScore = 0;
         this.bestStage = 0;
+        this.mathMode = 'subtract'; // 'subtract' | 'multiply'
+        this.lastActivity = 'battle'; // 'battle' | 'timeattack'
+
+        // Time attack state
+        this.ta = { active: false, timerAnimId: null };
 
         // Dialogue state
         this.dialogueQueue = [];
@@ -33,6 +39,23 @@ class GameApp {
             result: document.getElementById('result-screen'),
             miningResult: document.getElementById('mining-result-screen'),
             map: document.getElementById('map-screen'),
+            timeattack: document.getElementById('timeattack-screen'),
+        };
+
+        // Time attack DOM elements
+        this.taEls = {
+            countdown: document.getElementById('ta-countdown'),
+            correct: document.getElementById('ta-correct'),
+            wrong: document.getElementById('ta-wrong'),
+            score: document.getElementById('ta-score'),
+            numA: document.getElementById('ta-num-a'),
+            numB: document.getElementById('ta-num-b'),
+            op: document.getElementById('ta-op'),
+            answer: document.getElementById('ta-answer'),
+            comboDisplay: document.getElementById('ta-combo-display'),
+            comboCount: document.getElementById('ta-combo-count'),
+            messageOverlay: document.getElementById('ta-message'),
+            messageText: document.getElementById('ta-message-text'),
         };
 
         // Result elements
@@ -108,6 +131,34 @@ class GameApp {
             this.goToHub();
         });
 
+        // --- Mode selector ---
+        document.getElementById('btn-mode-subtract').addEventListener('click', () => {
+            this.sound.playButtonPress();
+            this.setMathMode('subtract');
+        });
+        document.getElementById('btn-mode-multiply').addEventListener('click', () => {
+            this.sound.playButtonPress();
+            this.setMathMode('multiply');
+        });
+
+        // --- Time Attack ---
+        document.getElementById('btn-hub-timeattack').addEventListener('click', () => {
+            this.sound.playButtonPress();
+            this.startTimeAttack();
+        });
+        document.getElementById('btn-ta-quit').addEventListener('click', () => {
+            this.sound.playButtonPress();
+            this.taStop();
+            this.goToHub();
+        });
+        document.getElementById('ta-numpad').addEventListener('click', (e) => {
+            const btn = e.target.closest('.num-btn');
+            if (!btn) return;
+            if (btn.dataset.num !== undefined) this.taHandleInput(btn.dataset.num);
+            else if (btn.dataset.action === 'delete') this.taHandleDelete();
+            else if (btn.dataset.action === 'submit') this.taHandleSubmit();
+        });
+
         // --- Dialogue ---
         document.getElementById('dialogue-overlay').addEventListener('click', () => {
             this.advanceDialogue();
@@ -132,25 +183,16 @@ class GameApp {
             else if (btn.dataset.action === 'submit') this.battle.handleSubmit();
         });
 
-        // --- Mining numpad ---
-        document.getElementById('mining-numpad').addEventListener('click', (e) => {
-            const btn = e.target.closest('.num-btn');
-            if (!btn) return;
-            if (btn.dataset.num !== undefined) this.mining.handleInput(btn.dataset.num);
-            else if (btn.dataset.action === 'delete') this.mining.handleDelete();
-            else if (btn.dataset.action === 'submit') this.mining.handleSubmit();
-        });
-
         // --- Keyboard ---
         document.addEventListener('keydown', (e) => {
             if (this.currentScreen === 'battle') {
                 if (e.key >= '0' && e.key <= '9') this.battle.handleInput(e.key);
                 else if (e.key === 'Backspace') { e.preventDefault(); this.battle.handleDelete(); }
                 else if (e.key === 'Enter') { e.preventDefault(); this.battle.handleSubmit(); }
-            } else if (this.currentScreen === 'mining') {
-                if (e.key >= '0' && e.key <= '9') this.mining.handleInput(e.key);
-                else if (e.key === 'Backspace') { e.preventDefault(); this.mining.handleDelete(); }
-                else if (e.key === 'Enter') { e.preventDefault(); this.mining.handleSubmit(); }
+            } else if (this.currentScreen === 'timeattack') {
+                if (e.key >= '0' && e.key <= '9') this.taHandleInput(e.key);
+                else if (e.key === 'Backspace') { e.preventDefault(); this.taHandleDelete(); }
+                else if (e.key === 'Enter') { e.preventDefault(); this.taHandleSubmit(); }
             } else if (this.currentScreen === 'crafting' && this.cooking.cookingActive) {
                 if (e.key === ' ' || e.key === 'Enter') {
                     e.preventDefault();
@@ -170,7 +212,11 @@ class GameApp {
         });
         this.resultEls.btnRetry.addEventListener('click', () => {
             this.sound.playButtonPress();
-            this.retryStage();
+            if (this.lastActivity === 'timeattack') {
+                this.startTimeAttack();
+            } else {
+                this.retryStage();
+            }
         });
         this.resultEls.btnTitle.addEventListener('click', () => {
             this.sound.playButtonPress();
@@ -251,6 +297,7 @@ class GameApp {
         else if (name === 'map') this.effects.createStars('map-stars');
         else if (name === 'crafting') this.effects.createStars('crafting-stars');
         else if (name === 'miningResult') this.effects.createStars('mining-result-stars');
+        else if (name === 'timeattack') this.effects.createStars('timeattack-stars');
     }
 
     // --- Game Flow ---
@@ -394,6 +441,7 @@ class GameApp {
     }
 
     _launchBattle() {
+        this.lastActivity = 'battle';
         // Apply equipment + food bonuses
         const hpBonus = this.inventory.getHpBonus();
         const foodBuffs = this.inventory.getFoodBuffs();
@@ -848,6 +896,186 @@ class GameApp {
 
     advanceDialogue() {
         this._showNextDialogueLine();
+    }
+
+    // --- Mode selector ---
+
+    setMathMode(mode) {
+        this.mathMode = mode;
+        this.mathEngine.mode = mode;
+        document.getElementById('btn-mode-subtract').classList.toggle('mode-btn--active', mode === 'subtract');
+        document.getElementById('btn-mode-multiply').classList.toggle('mode-btn--active', mode === 'multiply');
+    }
+
+    // --- Time Attack ---
+
+    startTimeAttack() {
+        this.lastActivity = 'timeattack';
+        this.taMathEngine.resetAll();
+        this.taMathEngine.mode = this.mathMode;
+
+        this.ta = {
+            active: true,
+            correct: 0,
+            wrong: 0,
+            combo: 0,
+            maxCombo: 0,
+            score: 0,
+            inputValue: '',
+            isProcessing: false,
+            currentProblem: null,
+            timerAnimId: null,
+            totalSeconds: 60,
+            startTime: performance.now(),
+        };
+
+        this.taEls.correct.textContent = '0';
+        this.taEls.wrong.textContent = '0';
+        this.taEls.score.textContent = '⭐ 0';
+        this.taEls.countdown.textContent = '60';
+        this.taEls.countdown.classList.remove('urgent');
+        this.taEls.comboDisplay.classList.remove('active');
+
+        this.showScreen('timeattack');
+        this.taNextProblem();
+        this.taTick();
+    }
+
+    taNextProblem() {
+        this.ta.currentProblem = this.taMathEngine.generateProblem();
+        this.ta.inputValue = '';
+        this.taEls.numA.textContent = this.ta.currentProblem.a;
+        this.taEls.numB.textContent = this.ta.currentProblem.b;
+        this.taEls.op.textContent = this.ta.currentProblem.op;
+        this.taEls.answer.textContent = '?';
+        this.taEls.answer.style.color = '';
+    }
+
+    taTick() {
+        const tick = (now) => {
+            if (!this.ta.active) return;
+            const elapsed = (now - this.ta.startTime) / 1000;
+            const remaining = Math.max(0, this.ta.totalSeconds - elapsed);
+            this.taEls.countdown.textContent = Math.ceil(remaining);
+
+            if (remaining <= 10) this.taEls.countdown.classList.add('urgent');
+
+            if (remaining <= 0) {
+                this.ta.active = false;
+                this.taEnd();
+                return;
+            }
+            this.ta.timerAnimId = requestAnimationFrame(tick);
+        };
+        this.ta.timerAnimId = requestAnimationFrame(tick);
+    }
+
+    taStop() {
+        this.ta.active = false;
+        if (this.ta.timerAnimId) {
+            cancelAnimationFrame(this.ta.timerAnimId);
+            this.ta.timerAnimId = null;
+        }
+    }
+
+    taHandleInput(num) {
+        if (!this.ta.active || this.ta.isProcessing) return;
+        this.sound.playButtonPress();
+        if (this.ta.inputValue.length < 3) {
+            this.ta.inputValue += num;
+            this.taEls.answer.textContent = this.ta.inputValue;
+        }
+    }
+
+    taHandleDelete() {
+        if (!this.ta.active || this.ta.isProcessing) return;
+        this.sound.playButtonPress();
+        this.ta.inputValue = this.ta.inputValue.slice(0, -1);
+        this.taEls.answer.textContent = this.ta.inputValue || '?';
+    }
+
+    taHandleSubmit() {
+        if (!this.ta.active || this.ta.isProcessing || this.ta.inputValue === '') return;
+        this.ta.isProcessing = true;
+
+        const userAnswer = parseInt(this.ta.inputValue, 10);
+        const result = this.taMathEngine.checkAnswer(userAnswer, this.ta.currentProblem.answer);
+
+        if (result.isCorrect) {
+            this.ta.correct++;
+            if (result.combo > this.ta.maxCombo) this.ta.maxCombo = result.combo;
+
+            const baseScore = 100 + this.taMathEngine.level * 50;
+            const comboMult = 1 + (result.combo - 1) * 0.2;
+            this.ta.score += Math.floor(baseScore * comboMult);
+
+            this.sound.playCorrect();
+            this.taEls.correct.textContent = this.ta.correct;
+            this.taEls.score.textContent = `⭐ ${this.ta.score}`;
+            this.taEls.answer.textContent = this.ta.currentProblem.answer;
+            this.taEls.answer.style.color = '#58d6f0';
+
+            if (result.combo >= 2) {
+                this.taEls.comboDisplay.classList.add('active');
+                this.taEls.comboCount.textContent = result.combo;
+            }
+
+            const msgs = result.combo >= 5
+                ? ['すごすぎ！！🌟', 'てんさい！！✨']
+                : result.combo >= 3
+                    ? ['すばらしい！🔥', 'やったね！⭐']
+                    : ['せいかい！✨', 'あたり！🎯', 'いいね！👍'];
+            this.taShowMessage(msgs[Math.floor(Math.random() * msgs.length)], 'correct');
+        } else {
+            this.ta.wrong++;
+            this.taMathEngine.resetCombo();
+
+            this.sound.playWrong();
+            this.taEls.wrong.textContent = this.ta.wrong;
+            this.taEls.answer.textContent = this.ta.currentProblem.answer;
+            this.taEls.answer.style.color = '#f44336';
+            this.taEls.comboDisplay.classList.remove('active');
+
+            this.taShowMessage('ざんねん…😢', 'wrong');
+            this.effects.wrongEffect();
+        }
+
+        setTimeout(() => {
+            this.ta.isProcessing = false;
+            if (this.ta.active) this.taNextProblem();
+        }, 700);
+    }
+
+    taShowMessage(text, type) {
+        this.taEls.messageText.textContent = text;
+        this.taEls.messageText.className = `message-text ${type}`;
+        this.taEls.messageOverlay.classList.add('show');
+        setTimeout(() => this.taEls.messageOverlay.classList.remove('show'), 700);
+    }
+
+    taEnd() {
+        this.taStop();
+        const total = this.ta.correct + this.ta.wrong;
+        const accuracy = total > 0 ? Math.round((this.ta.correct / total) * 100) : 0;
+
+        this.totalScore += this.ta.score;
+        this.saveProgress();
+
+        this.resultEls.icon.textContent = '⏱️';
+        this.resultEls.title.textContent = `${this.ta.correct}もん せいかい！`;
+        this.resultEls.title.className = 'result-title victory';
+        this.resultEls.score.textContent = this.ta.score.toLocaleString();
+        this.resultEls.accuracy.textContent = `${accuracy}%`;
+        this.resultEls.combo.textContent = `${this.ta.maxCombo}x`;
+        this.resultEls.btnNext.style.display = '';
+        this.resultEls.btnNextBattle.style.display = 'none';
+        this.resultEls.btnRetry.style.display = '';
+        this.resultEls.loot.style.display = 'none';
+        this.resultEls.level.style.display = 'none';
+
+        this.showScreen('result');
+        this.sound.playVictory();
+        this.effects.victoryCelebration();
     }
 
     // --- World Map ---

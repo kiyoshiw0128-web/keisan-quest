@@ -1,314 +1,235 @@
 /**
- * mining.js - Mining mini-game system
+ * mining.js - Rock smash mini-game with zone selection
  */
+
+const MINING_ZONES = [
+    {
+        id: 'grassland',
+        blockTypes: ['wood', 'stone'],
+        weights:    [60,     40],
+        rocksTotal: 10,
+    },
+    {
+        id: 'mountain',
+        blockTypes: ['stone', 'iron'],
+        weights:    [40,      60],
+        rocksTotal: 7,
+    },
+    {
+        id: 'cave',
+        blockTypes: ['iron', 'gold', 'diamond'],
+        weights:    [20,     50,     30],
+        rocksTotal: 5,
+    },
+];
+
+const ROCK_HITS = {
+    wood: 3, stone: 5, iron: 8, gold: 11, diamond: 14,
+};
 
 class MiningSystem {
     constructor(mathEngine, effects, sound, inventory) {
-        this.math = mathEngine;
         this.effects = effects;
         this.sound = sound;
         this.inventory = inventory;
 
-        // State
-        this.grid = [];
-        this.gridSize = { cols: 4, rows: 4 };
-        this.pickaxeDurability = 10;
-        this.pickaxeMax = 10;
-        this.currentBlock = null;
-        this.currentProblem = null;
-        this.inputValue = '';
-        this.isProcessing = false;
+        this.zone = null;
+        this.rocksTotal = 0;
+        this.rocksDone = 0;
+        this.pickaxeDurability = 0;
+        this.pickaxeMax = 0;
         this.miningActive = false;
-        this.minedCount = 0;
+        this.isBreaking = false;
         this.sessionResources = {};
 
-        // Callbacks
+        this.currentRock = null;
+        this.currentHits = 0;
+        this.hitsRequired = 0;
+
         this.onComplete = null;
 
-        // DOM
         this.els = {
-            grid: document.getElementById('mine-grid'),
+            zoneSelect: document.getElementById('zone-select'),
+            rockArea: document.getElementById('rock-area'),
             durability: document.getElementById('pickaxe-durability'),
             durabilityBar: document.getElementById('pickaxe-bar-fill'),
-            problemArea: document.getElementById('mining-problem-area'),
-            numA: document.getElementById('mine-num-a'),
-            numB: document.getElementById('mine-num-b'),
-            answerDisplay: document.getElementById('mine-answer-display'),
+            rockBtn: document.getElementById('rock-btn'),
+            rockSprite: document.getElementById('rock-sprite'),
+            rockLabel: document.getElementById('rock-resource-label'),
+            rockCounter: document.getElementById('rock-counter'),
+            rockProgressBar: document.getElementById('rock-progress-bar'),
+            rockHitsLabel: document.getElementById('rock-hits-label'),
+            crack1: document.getElementById('rock-crack-1'),
+            crack2: document.getElementById('rock-crack-2'),
+            crack3: document.getElementById('rock-crack-3'),
             inventoryBar: document.getElementById('mining-inv-bar'),
             messageOverlay: document.getElementById('mining-message'),
             messageText: document.getElementById('mining-message-text'),
         };
+
+        this.els.rockBtn.addEventListener('click', () => this.onRockHit());
+
+        document.querySelectorAll('.zone-card').forEach(card => {
+            card.addEventListener('click', () => {
+                this.sound.playButtonPress();
+                this.selectZone(card.dataset.zone);
+            });
+        });
     }
 
-    /**
-     * Start a new mining session.
-     */
     startMining() {
-        this.pickaxeDurability = this.pickaxeMax;
-        this.currentBlock = null;
-        this.currentProblem = null;
-        this.inputValue = '';
-        this.isProcessing = false;
-        this.miningActive = true;
-        this.minedCount = 0;
+        this.miningActive = false;
+        this.isBreaking = false;
         this.sessionResources = {};
-        this.math.resetStage();
 
-        this.generateGrid();
-        this.renderGrid();
+        // ゾーン選択画面を表示
+        this.els.zoneSelect.style.display = '';
+        this.els.rockArea.style.display = 'none';
+        this.updateInventoryBar();
+    }
+
+    selectZone(zoneId) {
+        this.zone = MINING_ZONES.find(z => z.id === zoneId);
+        this.rocksTotal = this.zone.rocksTotal;
+        this.pickaxeMax = this.rocksTotal;
+        this.pickaxeDurability = this.pickaxeMax;
+        this.rocksDone = 0;
+        this.miningActive = true;
+        this.sessionResources = {};
+
+        this.els.zoneSelect.style.display = 'none';
+        this.els.rockArea.style.display = '';
+
         this.updateUI();
-        this.hideProblem();
+        this.nextRock();
     }
 
-    /**
-     * Generate random block grid.
-     */
-    generateGrid() {
-        this.grid = [];
-        const totalWeight = BLOCK_TYPES.reduce((sum, b) => sum + b.weight, 0);
+    nextRock() {
+        this.currentRock = this.pickRock();
+        this.currentHits = 0;
+        this.hitsRequired = ROCK_HITS[this.currentRock.type];
 
-        for (let r = 0; r < this.gridSize.rows; r++) {
-            const row = [];
-            for (let c = 0; c < this.gridSize.cols; c++) {
-                let rand = Math.random() * totalWeight;
-                let blockType = BLOCK_TYPES[0];
-                for (const bt of BLOCK_TYPES) {
-                    rand -= bt.weight;
-                    if (rand <= 0) {
-                        blockType = bt;
-                        break;
-                    }
-                }
-                row.push({
-                    type: blockType.type,
-                    name: blockType.name,
-                    icon: blockType.icon,
-                    color: blockType.color,
-                    mined: false,
-                    row: r,
-                    col: c,
-                });
-            }
-            this.grid.push(row);
-        }
+        const resInfo = RESOURCE_INFO[this.currentRock.type];
+        this.els.rockSprite.textContent = '🪨';
+        this.els.rockSprite.style.transform = '';
+        this.els.rockBtn.style.background = this.currentRock.color;
+        this.els.rockBtn.disabled = false;
+        this.els.rockLabel.textContent = `${resInfo.icon} ${resInfo.name}`;
+        this.els.rockCounter.textContent = `のこり ${this.rocksTotal - this.rocksDone}こ`;
+        this.els.crack1.classList.remove('active');
+        this.els.crack2.classList.remove('active');
+        this.els.crack3.classList.remove('active');
+
+        this.updateProgressBar();
+        this.updateInventoryBar();
     }
 
-    /**
-     * Render the block grid.
-     */
-    renderGrid() {
-        this.els.grid.innerHTML = '';
-        this.els.grid.style.gridTemplateColumns = `repeat(${this.gridSize.cols}, 1fr)`;
+    onRockHit() {
+        if (!this.miningActive || this.isBreaking) return;
 
-        for (let r = 0; r < this.gridSize.rows; r++) {
-            for (let c = 0; c < this.gridSize.cols; c++) {
-                const block = this.grid[r][c];
-                const el = document.createElement('button');
-                el.className = 'mine-block';
-                el.dataset.row = r;
-                el.dataset.col = c;
-
-                if (block.mined) {
-                    el.classList.add('mined');
-                    el.innerHTML = '';
-                } else {
-                    el.style.background = block.color;
-                    el.style.boxShadow = `inset -3px -3px 0 rgba(0,0,0,0.3), inset 3px 3px 0 rgba(255,255,255,0.15)`;
-                    el.innerHTML = `<span class="block-icon">${block.icon}</span>`;
-                }
-
-                el.addEventListener('click', () => this.onBlockClick(r, c));
-                this.els.grid.appendChild(el);
-            }
-        }
-    }
-
-    /**
-     * Handle block click.
-     */
-    onBlockClick(row, col) {
-        if (this.isProcessing || !this.miningActive) return;
-        const block = this.grid[row][col];
-        if (block.mined) return;
-
+        this.currentHits++;
         this.sound.playButtonPress();
-        this.currentBlock = block;
-        this.currentProblem = this.math.generateProblem();
-        this.inputValue = '';
 
-        // Highlight selected block
-        document.querySelectorAll('.mine-block').forEach(el => el.classList.remove('selected'));
-        const blockEl = this.els.grid.children[row * this.gridSize.cols + col];
-        blockEl.classList.add('selected');
+        // 揺れアニメーション
+        this.els.rockSprite.classList.remove('rock-shake');
+        void this.els.rockSprite.offsetWidth;
+        this.els.rockSprite.classList.add('rock-shake');
 
-        this.showProblem();
-    }
+        // ヒビの進行
+        const pct = this.currentHits / this.hitsRequired;
+        if (pct >= 0.33) this.els.crack1.classList.add('active');
+        if (pct >= 0.66) this.els.crack2.classList.add('active');
+        if (pct >= 0.90) this.els.crack3.classList.add('active');
 
-    /**
-     * Show problem UI.
-     */
-    showProblem() {
-        this.els.numA.textContent = this.currentProblem.a;
-        this.els.numB.textContent = this.currentProblem.b;
-        this.els.answerDisplay.textContent = '?';
-        this.els.answerDisplay.style.color = '';
-        this.els.problemArea.classList.add('active');
-    }
+        this.updateProgressBar();
 
-    hideProblem() {
-        this.els.problemArea.classList.remove('active');
-    }
-
-    /**
-     * Handle numpad input.
-     */
-    handleInput(num) {
-        if (this.isProcessing || !this.miningActive || !this.currentBlock) return;
-        this.sound.playButtonPress();
-        if (this.inputValue.length < 3) {
-            this.inputValue += num;
-            this.els.answerDisplay.textContent = this.inputValue;
+        if (this.currentHits >= this.hitsRequired) {
+            this.breakRock();
         }
     }
 
-    handleDelete() {
-        if (this.isProcessing || !this.miningActive) return;
-        this.sound.playButtonPress();
-        this.inputValue = this.inputValue.slice(0, -1);
-        this.els.answerDisplay.textContent = this.inputValue || '?';
-    }
-
-    handleSubmit() {
-        if (this.isProcessing || !this.miningActive || this.inputValue === '' || !this.currentBlock) return;
-        this.isProcessing = true;
-
-        const userAnswer = parseInt(this.inputValue, 10);
-        const isCorrect = userAnswer === this.currentProblem.answer;
-
-        if (isCorrect) {
-            this.onCorrectMine();
-        } else {
-            this.onWrongMine();
-        }
-    }
-
-    /**
-     * Correct answer - mine the block.
-     */
-    onCorrectMine() {
-        const block = this.currentBlock;
-        block.mined = true;
-        this.minedCount++;
-
-        // Add resource
-        this.inventory.addResource(block.type, 1);
-        this.sessionResources[block.type] = (this.sessionResources[block.type] || 0) + 1;
-
-        // Sound + effects
+    breakRock() {
+        this.isBreaking = true;
+        this.els.rockBtn.disabled = true;
         this.sound.playCorrect();
-        const blockIndex = block.row * this.gridSize.cols + block.col;
-        const blockEl = this.els.grid.children[blockIndex];
-        this.effects.correctEffect(blockEl);
 
-        // Show answer
-        this.els.answerDisplay.textContent = this.currentProblem.answer;
-        this.els.answerDisplay.style.color = '#58d6f0';
+        this.els.rockSprite.classList.add('rock-break');
+        this.effects.correctEffect(this.els.rockBtn);
 
-        // Show message
-        const resInfo = RESOURCE_INFO[block.type];
+        this.inventory.addResource(this.currentRock.type, 1);
+        this.sessionResources[this.currentRock.type] = (this.sessionResources[this.currentRock.type] || 0) + 1;
+
+        const resInfo = RESOURCE_INFO[this.currentRock.type];
         this.showMessage(`${resInfo.icon} ${resInfo.name} ゲット！`, 'correct');
 
-        // Animate block break
-        blockEl.classList.add('breaking');
-        setTimeout(() => {
-            blockEl.classList.add('mined');
-            blockEl.classList.remove('breaking', 'selected');
-            blockEl.innerHTML = '';
-            blockEl.style.background = '';
-            blockEl.style.boxShadow = '';
-        }, 400);
-
-        this.updateUI();
-
-        setTimeout(() => {
-            this.isProcessing = false;
-            this.currentBlock = null;
-            this.hideProblem();
-            this.checkMiningComplete();
-        }, 800);
-    }
-
-    /**
-     * Wrong answer - lose pickaxe durability.
-     */
-    onWrongMine() {
         this.pickaxeDurability--;
-
-        this.sound.playWrong();
-        this.effects.wrongEffect();
-
-        // Show correct answer
-        this.els.answerDisplay.textContent = this.currentProblem.answer;
-        this.els.answerDisplay.style.color = '#f44336';
-
-        this.showMessage('ざんねん…💦', 'wrong');
+        this.rocksDone++;
         this.updateUI();
 
         setTimeout(() => {
-            this.isProcessing = false;
-            this.currentBlock = null;
-            this.hideProblem();
-            document.querySelectorAll('.mine-block').forEach(el => el.classList.remove('selected'));
+            this.els.rockSprite.classList.remove('rock-break', 'rock-shake');
+            this.isBreaking = false;
 
-            if (this.pickaxeDurability <= 0) {
+            if (this.rocksDone >= this.rocksTotal) {
                 this.completeMining();
+            } else {
+                this.nextRock();
             }
-        }, 1000);
+        }, 600);
     }
 
-    /**
-     * Check if mining is complete.
-     */
-    checkMiningComplete() {
-        const allMined = this.grid.every(row => row.every(b => b.mined));
-        if (allMined) {
-            this.completeMining();
-        }
-    }
-
-    /**
-     * End mining session.
-     */
     completeMining() {
         this.miningActive = false;
-
         setTimeout(() => {
             if (this.onComplete) {
                 this.onComplete({
-                    minedCount: this.minedCount,
+                    minedCount: this.rocksDone,
                     resources: { ...this.sessionResources },
                 });
             }
-        }, 500);
+        }, 400);
     }
 
-    // --- UI ---
+    pickRock() {
+        const zone = this.zone;
+        const totalWeight = zone.weights.reduce((s, w) => s + w, 0);
+        let rand = Math.random() * totalWeight;
+        for (let i = 0; i < zone.blockTypes.length; i++) {
+            rand -= zone.weights[i];
+            if (rand <= 0) {
+                const typeName = zone.blockTypes[i];
+                return BLOCK_TYPES.find(b => b.type === typeName);
+            }
+        }
+        return BLOCK_TYPES.find(b => b.type === zone.blockTypes[0]);
+    }
+
+    updateProgressBar() {
+        const pct = Math.min((this.currentHits / this.hitsRequired) * 100, 100);
+        this.els.rockProgressBar.style.width = `${pct}%`;
+        this.els.rockHitsLabel.textContent = `${this.currentHits} / ${this.hitsRequired} ヒット`;
+
+        if (pct < 50) {
+            this.els.rockProgressBar.style.background = 'linear-gradient(90deg, #58d6f0, #4fc3f7)';
+        } else if (pct < 80) {
+            this.els.rockProgressBar.style.background = 'linear-gradient(90deg, #ffb300, #ffd54f)';
+        } else {
+            this.els.rockProgressBar.style.background = 'linear-gradient(90deg, #f44336, #ff6b6b)';
+        }
+    }
 
     updateUI() {
         this.els.durability.textContent = `${this.pickaxeDurability}/${this.pickaxeMax}`;
         const pct = (this.pickaxeDurability / this.pickaxeMax) * 100;
         this.els.durabilityBar.style.width = `${pct}%`;
-        if (pct <= 30) {
-            this.els.durabilityBar.style.background = 'linear-gradient(90deg, #f44336, #ff6b6b)';
-        } else {
-            this.els.durabilityBar.style.background = '';
-        }
+        this.els.durabilityBar.style.background = pct <= 25
+            ? 'linear-gradient(90deg, #f44336, #ff6b6b)'
+            : '';
         this.updateInventoryBar();
     }
 
     updateInventoryBar() {
-        const bar = this.els.inventoryBar;
-        bar.innerHTML = Object.entries(RESOURCE_INFO).map(([type, info]) =>
+        this.els.inventoryBar.innerHTML = Object.entries(RESOURCE_INFO).map(([type, info]) =>
             `<span class="inv-item"><span class="inv-icon">${info.icon}</span><span class="inv-count">${this.inventory.resources[type]}</span></span>`
         ).join('');
     }

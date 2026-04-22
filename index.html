@@ -86,6 +86,12 @@
                 </div>
                 <div class="hub-food-buff" id="hub-food-buff" style="display:none"></div>
 
+                <div class="hub-mode-selector">
+                    <span class="mode-label">もーど:</span>
+                    <button class="mode-btn mode-btn--active" id="btn-mode-subtract">ひきざん</button>
+                    <button class="mode-btn" id="btn-mode-multiply">かけざん</button>
+                </div>
+
                 <div class="hub-buttons">
                     <button id="btn-hub-battle" class="pixel-btn pixel-btn--primary hub-btn">
                         <span class="btn-icon">⚔️</span> バトル
@@ -96,7 +102,9 @@
                     <button id="btn-hub-crafting" class="pixel-btn pixel-btn--crafting hub-btn">
                         <span class="btn-icon">🔨</span> クラフト
                     </button>
-
+                    <button id="btn-hub-timeattack" class="pixel-btn pixel-btn--timeattack hub-btn">
+                        <span class="btn-icon">⏱️</span> タイムアタック
+                    </button>
                     <button id="btn-hub-map" class="pixel-btn pixel-btn--secondary hub-btn">
                         <span class="btn-icon">🗺️</span> ワールドマップ
                     </button>
@@ -160,7 +168,7 @@
                     </div>
                     <div class="problem-box">
                         <span class="problem-num problem-num--a" id="num-a">10</span>
-                        <span class="problem-op">ー</span>
+                        <span class="problem-op" id="problem-op">ー</span>
                         <span class="problem-num problem-num--b" id="num-b">3</span>
                         <span class="problem-eq">=</span>
                         <span class="problem-answer" id="answer-display">?</span>
@@ -217,44 +225,62 @@
                     <span class="stage-label">⛏️ さいくつ</span>
                 </div>
                 <div class="hud-right">
-                    <span class="pickaxe-info">ピッケル</span>
+                    <span class="pickaxe-info">のこり</span>
                     <div class="pickaxe-bar">
                         <div class="pickaxe-bar-fill" id="pickaxe-bar-fill"></div>
                     </div>
-                    <span class="pickaxe-text" id="pickaxe-durability">10/10</span>
+                    <span class="pickaxe-text" id="pickaxe-durability">8/8</span>
                 </div>
             </div>
             <div class="mining-field">
-                <div class="mine-grid" id="mine-grid"></div>
-                <div class="mining-problem-area" id="mining-problem-area">
-                    <div class="problem-box">
-                        <span class="problem-num problem-num--a" id="mine-num-a">10</span>
-                        <span class="problem-op">ー</span>
-                        <span class="problem-num problem-num--b" id="mine-num-b">3</span>
-                        <span class="problem-eq">=</span>
-                        <span class="problem-answer" id="mine-answer-display">?</span>
+                <!-- ゾーン選択 -->
+                <div class="zone-select" id="zone-select">
+                    <h3 class="zone-select-title">⛏️ どこをさいくつする？</h3>
+                    <div class="zone-cards">
+                        <button class="zone-card" data-zone="grassland">
+                            <div class="zone-icon">🪨</div>
+                            <div class="zone-name">石切り場</div>
+                            <div class="zone-diff zone-diff--easy">かんたん</div>
+                            <div class="zone-drops">もくざい・いし</div>
+                            <div class="zone-info">10こ ／ 3〜5ヒット</div>
+                        </button>
+                        <button class="zone-card" data-zone="mountain">
+                            <div class="zone-icon">⛏️</div>
+                            <div class="zone-name">てつの山</div>
+                            <div class="zone-diff zone-diff--medium">ふつう</div>
+                            <div class="zone-drops">いし・てつ</div>
+                            <div class="zone-info">7こ ／ 5〜8ヒット</div>
+                        </button>
+                        <button class="zone-card" data-zone="cave">
+                            <div class="zone-icon">💎</div>
+                            <div class="zone-name">ひみつの洞窟</div>
+                            <div class="zone-diff zone-diff--hard">むずかしい</div>
+                            <div class="zone-drops">きん・ダイヤ</div>
+                            <div class="zone-info">5こ ／ 10〜14ヒット</div>
+                        </button>
                     </div>
                 </div>
+
+                <!-- 採掘ゲーム本体 -->
+                <div class="rock-area" id="rock-area" style="display:none">
+                    <div class="rock-resource-label" id="rock-resource-label">⛏️ たたいてくだせ！</div>
+                    <div class="rock-counter" id="rock-counter">のこり 8こ</div>
+                    <button class="rock-btn" id="rock-btn">
+                        <span class="rock-sprite" id="rock-sprite">🪨</span>
+                        <div class="rock-crack rock-crack--1" id="rock-crack-1"></div>
+                        <div class="rock-crack rock-crack--2" id="rock-crack-2"></div>
+                        <div class="rock-crack rock-crack--3" id="rock-crack-3"></div>
+                    </button>
+                    <div class="rock-progress-wrap">
+                        <div class="rock-progress-bar" id="rock-progress-bar"></div>
+                    </div>
+                    <div class="rock-hits-label" id="rock-hits-label">0 / 6 ヒット</div>
+                </div>
+
                 <div class="message-overlay" id="mining-message">
                     <div class="message-text" id="mining-message-text"></div>
                 </div>
                 <div class="mining-inv-bar" id="mining-inv-bar"></div>
-            </div>
-            <div class="numpad-wrapper">
-                <div class="numpad" id="mining-numpad">
-                    <button class="num-btn" data-num="1">1</button>
-                    <button class="num-btn" data-num="2">2</button>
-                    <button class="num-btn" data-num="3">3</button>
-                    <button class="num-btn" data-num="4">4</button>
-                    <button class="num-btn" data-num="5">5</button>
-                    <button class="num-btn num-btn--action num-btn--delete" data-action="delete">⌫</button>
-                    <button class="num-btn" data-num="6">6</button>
-                    <button class="num-btn" data-num="7">7</button>
-                    <button class="num-btn" data-num="8">8</button>
-                    <button class="num-btn" data-num="9">9</button>
-                    <button class="num-btn" data-num="0">0</button>
-                    <button class="num-btn num-btn--action num-btn--submit" data-action="submit">OK</button>
-                </div>
             </div>
         </div>
 
@@ -403,6 +429,67 @@
         </div>
 
 
+
+        <!-- ========== TIME ATTACK SCREEN ========== -->
+        <div id="timeattack-screen" class="screen">
+            <div class="battle-bg">
+                <div class="star-field" id="timeattack-stars"></div>
+                <div class="ground-blocks"></div>
+            </div>
+            <div class="battle-hud">
+                <div class="hud-left">
+                    <button id="btn-ta-quit" class="mining-back-btn">⬅️</button>
+                    <span class="stage-label">⏱️ タイムアタック</span>
+                </div>
+                <div class="hud-right">
+                    <span class="score-display" id="ta-score">⭐ 0</span>
+                </div>
+            </div>
+            <div class="ta-main">
+                <div class="ta-header">
+                    <div class="ta-countdown-wrap">
+                        <div class="ta-countdown" id="ta-countdown">60</div>
+                        <div class="ta-countdown-label">びょう</div>
+                    </div>
+                    <div class="ta-stats">
+                        <span class="ta-stat-correct">✅ <span id="ta-correct">0</span>もん</span>
+                        <span class="ta-stat-wrong">❌ <span id="ta-wrong">0</span>もん</span>
+                    </div>
+                </div>
+                <div class="problem-section ta-problem">
+                    <div class="problem-box">
+                        <span class="problem-num problem-num--a" id="ta-num-a">?</span>
+                        <span class="problem-op" id="ta-op">ー</span>
+                        <span class="problem-num problem-num--b" id="ta-num-b">?</span>
+                        <span class="problem-eq">=</span>
+                        <span class="problem-answer" id="ta-answer">?</span>
+                    </div>
+                    <div class="combo-display" id="ta-combo-display">
+                        <span class="combo-count" id="ta-combo-count">0</span>
+                        <span class="combo-label">コンボ！🔥</span>
+                    </div>
+                </div>
+                <div class="message-overlay" id="ta-message">
+                    <div class="message-text" id="ta-message-text"></div>
+                </div>
+            </div>
+            <div class="numpad-wrapper">
+                <div class="numpad" id="ta-numpad">
+                    <button class="num-btn" data-num="1">1</button>
+                    <button class="num-btn" data-num="2">2</button>
+                    <button class="num-btn" data-num="3">3</button>
+                    <button class="num-btn" data-num="4">4</button>
+                    <button class="num-btn" data-num="5">5</button>
+                    <button class="num-btn num-btn--action num-btn--delete" data-action="delete">⌫</button>
+                    <button class="num-btn" data-num="6">6</button>
+                    <button class="num-btn" data-num="7">7</button>
+                    <button class="num-btn" data-num="8">8</button>
+                    <button class="num-btn" data-num="9">9</button>
+                    <button class="num-btn" data-num="0">0</button>
+                    <button class="num-btn num-btn--action num-btn--submit" data-action="submit">OK</button>
+                </div>
+            </div>
+        </div>
 
         <!-- ========== DIALOGUE OVERLAY ========== -->
         <div id="dialogue-overlay" class="dialogue-overlay">

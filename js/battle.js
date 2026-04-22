@@ -47,6 +47,7 @@ class BattleSystem {
             playerContainer: document.getElementById('player-container'),
             numA: document.getElementById('num-a'),
             numB: document.getElementById('num-b'),
+            opDisplay: document.getElementById('problem-op'),
             answerDisplay: document.getElementById('answer-display'),
             comboDisplay: document.getElementById('combo-display'),
             comboCount: document.getElementById('combo-count'),
@@ -81,14 +82,21 @@ class BattleSystem {
         const area = getArea(stageIndex);
         this.els.stageLabel.textContent = `ステージ ${stageIndex + 1}`;
         this.els.stageArea.textContent = area.name;
-        this.els.monsterSprite.textContent = this.monster.sprite;
-        this.els.monsterName.textContent = this.monster.name;
-        if (this.monster.isBoss) {
-            this.els.monsterName.textContent = `👑 ${this.monster.name}`;
-            this.els.monsterContainer.style.borderColor = 'rgba(255, 215, 0, 0.6)';
-        } else {
+        const monsterSection = this.els.monsterContainer.closest('.monster-section');
+        if (this.monster.isBoss && this.monster.image) {
+            this.els.monsterSprite.innerHTML = `<img src="${this.monster.image}" alt="${this.monster.name}" class="monster-img monster-img--boss">`;
+            monsterSection.classList.add('boss-mode');
+            this.els.monsterContainer.style.borderColor = '';
+        } else if (this.monster.image) {
+            this.els.monsterSprite.innerHTML = `<img src="${this.monster.image}" alt="${this.monster.name}" class="monster-img">`;
+            monsterSection.classList.remove('boss-mode');
             this.els.monsterContainer.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        } else {
+            this.els.monsterSprite.textContent = this.monster.sprite;
+            monsterSection.classList.remove('boss-mode');
+            this.els.monsterContainer.style.borderColor = this.monster.isBoss ? 'rgba(255, 215, 0, 0.6)' : 'rgba(255, 255, 255, 0.1)';
         }
+        this.els.monsterName.textContent = this.monster.isBoss ? `👑 ${this.monster.name}` : this.monster.name;
 
         this.updateHpBars();
         this.updateScore();
@@ -111,6 +119,7 @@ class BattleSystem {
         this.inputValue = '';
         this.els.numA.textContent = this.currentProblem.a;
         this.els.numB.textContent = this.currentProblem.b;
+        if (this.els.opDisplay) this.els.opDisplay.textContent = this.currentProblem.op;
         this.els.answerDisplay.textContent = '?';
         this.els.answerDisplay.style.color = '';
         this.startTimer();

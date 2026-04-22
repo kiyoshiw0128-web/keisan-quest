@@ -489,6 +489,39 @@ body {
   transition: transform 0.2s ease;
 }
 
+.monster-img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(255, 100, 100, 0.6));
+}
+
+/* ボスモード：縦並びで大きく表示 */
+.monster-section.boss-mode {
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.monster-section.boss-mode .monster-container {
+  width: 180px;
+  height: 180px;
+  background: none;
+  border: none;
+}
+
+.monster-section.boss-mode .monster-info {
+  width: 100%;
+  text-align: center;
+}
+
+.monster-img--boss {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(255, 80, 80, 0.8));
+}
+
 @keyframes monsterIdle {
 
   0%,
@@ -1891,6 +1924,226 @@ body {
   min-height: 0;
 }
 
+/* --- Zone Selection --- */
+
+.zone-select {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.zone-select-title {
+  font-size: 1rem;
+  color: var(--accent-cyan);
+  text-shadow: 0 0 8px rgba(88, 214, 240, 0.4);
+  margin: 0;
+}
+
+.zone-cards {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+}
+
+.zone-card {
+  flex: 1;
+  max-width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 12px 6px;
+  background: var(--bg-panel);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.zone-card:hover, .zone-card:active {
+  transform: translateY(-3px);
+  border-color: rgba(88, 214, 240, 0.6);
+  box-shadow: 0 6px 20px rgba(88, 214, 240, 0.2);
+}
+
+.zone-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.zone-name {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  font-weight: bold;
+  text-align: center;
+}
+
+.zone-diff {
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.zone-diff--easy   { background: rgba(76, 175, 80, 0.3);  color: #81c784; }
+.zone-diff--medium { background: rgba(255, 179, 0, 0.3);  color: #ffd54f; }
+.zone-diff--hard   { background: rgba(126, 87, 194, 0.3); color: #ce93d8; }
+
+.zone-drops {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.zone-info {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.rock-counter {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+/* --- Rock Smash Mini-game --- */
+
+.rock-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.rock-resource-label {
+  font-size: 1.1rem;
+  color: var(--text-gold);
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+  letter-spacing: 0.05em;
+}
+
+.rock-btn {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  border-radius: 20px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  background: #808080;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  box-shadow:
+    inset -6px -6px 0 rgba(0,0,0,0.3),
+    inset 6px 6px 0 rgba(255,255,255,0.15),
+    0 8px 24px rgba(0,0,0,0.5);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rock-btn:active {
+  transform: scale(0.93);
+  box-shadow:
+    inset -3px -3px 0 rgba(0,0,0,0.3),
+    inset 3px 3px 0 rgba(255,255,255,0.15),
+    0 4px 12px rgba(0,0,0,0.5);
+}
+
+.rock-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.rock-sprite {
+  display: block;
+  font-size: 5rem;
+  line-height: 1;
+  transition: transform 0.1s ease;
+  pointer-events: none;
+}
+
+@keyframes rockShake {
+  0%   { transform: translateX(0) rotate(0deg); }
+  25%  { transform: translateX(-6px) rotate(-4deg); }
+  50%  { transform: translateX(6px) rotate(4deg); }
+  75%  { transform: translateX(-4px) rotate(-2deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+
+@keyframes rockBreak {
+  0%   { transform: scale(1); opacity: 1; }
+  40%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0) rotate(20deg); opacity: 0; }
+}
+
+.rock-sprite.rock-shake {
+  animation: rockShake 0.2s ease;
+}
+
+.rock-sprite.rock-break {
+  animation: rockBreak 0.5s ease forwards;
+}
+
+.rock-crack {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  border-radius: 16px;
+}
+
+.rock-crack.active {
+  opacity: 1;
+}
+
+.rock-crack--1 {
+  background:
+    linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.6) 49%, rgba(0,0,0,0.6) 51%, transparent 52%),
+    linear-gradient(-30deg, transparent 55%, rgba(0,0,0,0.4) 56%, rgba(0,0,0,0.4) 58%, transparent 59%);
+}
+
+.rock-crack--2 {
+  background:
+    linear-gradient(80deg, transparent 40%, rgba(0,0,0,0.5) 41%, rgba(0,0,0,0.5) 43%, transparent 44%),
+    linear-gradient(-60deg, transparent 35%, rgba(0,0,0,0.5) 36%, rgba(0,0,0,0.5) 38%, transparent 39%);
+}
+
+.rock-crack--3 {
+  background:
+    linear-gradient(20deg, transparent 45%, rgba(255,80,0,0.4) 46%, rgba(255,80,0,0.4) 48%, transparent 49%),
+    linear-gradient(-80deg, transparent 50%, rgba(255,80,0,0.3) 51%, rgba(255,80,0,0.3) 53%, transparent 54%);
+}
+
+.rock-progress-wrap {
+  width: 200px;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  border: 2px solid rgba(255,255,255,0.1);
+  overflow: hidden;
+}
+
+.rock-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #58d6f0, #4fc3f7);
+  border-radius: 8px;
+  transition: width 0.1s ease, background 0.3s ease;
+}
+
+.rock-hits-label {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
 .mine-grid {
   display: grid;
   gap: 6px;
@@ -2690,4 +2943,132 @@ body {
 .food-count {
   color: var(--accent-green);
   font-size: 0.85rem;
+}
+
+/* ============================================
+   MODE SELECTOR
+   ============================================ */
+
+.hub-mode-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 6px 0 10px;
+}
+
+.mode-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.mode-btn {
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  padding: 6px 14px;
+  border: 2px solid var(--text-dim);
+  background: transparent;
+  color: var(--text-dim);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.mode-btn--active {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  background: rgba(88, 214, 240, 0.1);
+  box-shadow: 0 0 8px rgba(88, 214, 240, 0.3);
+}
+
+/* ============================================
+   TIME ATTACK BUTTON
+   ============================================ */
+
+.pixel-btn--timeattack {
+  background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+  border-color: #e55353;
+  color: #1a0a00;
+}
+
+.pixel-btn--timeattack:hover {
+  background: linear-gradient(135deg, #ff8585 0%, #ffd370 100%);
+}
+
+/* ============================================
+   TIME ATTACK SCREEN
+   ============================================ */
+
+.ta-main {
+  position: relative;
+  z-index: 5;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  gap: 12px;
+}
+
+.ta-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 360px;
+}
+
+.ta-countdown-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ta-countdown {
+  font-family: var(--font-pixel-en);
+  font-size: 2.8rem;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.ta-countdown.urgent {
+  color: var(--accent-red);
+  text-shadow: 0 0 20px rgba(244, 67, 54, 0.8);
+  animation: urgentPulse 0.5s ease-in-out infinite;
+}
+
+@keyframes urgentPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.ta-countdown-label {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.ta-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.ta-stat-correct {
+  font-size: 0.9rem;
+  color: var(--accent-green);
+}
+
+.ta-stat-wrong {
+  font-size: 0.9rem;
+  color: var(--accent-red);
+}
+
+.ta-problem {
+  width: 100%;
+  max-width: 360px;
 }
