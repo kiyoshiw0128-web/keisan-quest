@@ -18,7 +18,7 @@ class GameApp {
         this.currentStage = 0;
         this.totalScore = 0;
         this.bestStage = 0;
-        this.mathMode = 'subtract'; // 'subtract' | 'multiply'
+        this.mathMode = 'add'; // 'add' | 'subtract' | 'multiply' | 'divide'
         this.lastActivity = 'battle'; // 'battle' | 'timeattack'
 
         // Time attack state
@@ -132,13 +132,11 @@ class GameApp {
         });
 
         // --- Mode selector ---
-        document.getElementById('btn-mode-subtract').addEventListener('click', () => {
-            this.sound.playButtonPress();
-            this.setMathMode('subtract');
-        });
-        document.getElementById('btn-mode-multiply').addEventListener('click', () => {
-            this.sound.playButtonPress();
-            this.setMathMode('multiply');
+        ['add', 'subtract', 'multiply', 'divide'].forEach(mode => {
+            document.getElementById(`btn-mode-${mode}`).addEventListener('click', () => {
+                this.sound.playButtonPress();
+                this.setMathMode(mode);
+            });
         });
 
         // --- Time Attack ---
@@ -903,8 +901,9 @@ class GameApp {
     setMathMode(mode) {
         this.mathMode = mode;
         this.mathEngine.mode = mode;
-        document.getElementById('btn-mode-subtract').classList.toggle('mode-btn--active', mode === 'subtract');
-        document.getElementById('btn-mode-multiply').classList.toggle('mode-btn--active', mode === 'multiply');
+        ['add', 'subtract', 'multiply', 'divide'].forEach(m => {
+            document.getElementById(`btn-mode-${m}`).classList.toggle('mode-btn--active', m === mode);
+        });
     }
 
     // --- Time Attack ---

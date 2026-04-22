@@ -2966,9 +2966,10 @@ body {
 
 .hub-mode-selector {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   margin: 6px 0 10px;
 }
 
@@ -2979,8 +2980,8 @@ body {
 
 .mode-btn {
   font-family: var(--font-pixel);
-  font-size: 0.75rem;
-  padding: 6px 14px;
+  font-size: 0.72rem;
+  padding: 5px 10px;
   border: 2px solid var(--text-dim);
   background: transparent;
   color: var(--text-dim);
